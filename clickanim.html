@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A-Frame</title>
+    <meta name="description" content="A-Frame">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script>
+    AFRAME.registerComponent('cursor-animator', {
+      init: function () {
+        this.el.addEventListener('click', function (evt) {
+          console.log('click')
+        });
+      }
+    });
+    </script>
+  </head>
+  <body>
+    
+    <a-scene>
+      <a-entity id="camera" camera look-controls cursor="rayOrigin: mouse"></a-entity>
+      <a-entity id="spaceship" geometry="primitive: box; wdth: 1; height: 1;" cursor-animator position="0 1 -6" scale="1 1 1" rotation="0 180 0">
+        <a-animation begin="click" attribute="position" from="-0 1 -6" to="-20 0 -25" dur="10000"></a-animation>
+        <a-animation begin="click" attribute="position" from="-0 1 -6" to="-20 1000 -200" delay="9000" dur="9000"></a-animation>
+      </a-entity>
+      <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+  </body>
+</html>
