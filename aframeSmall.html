@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+		<a-assets>
+			<img id="logo" src="images/logoOnWhite.jpg">
+		</a-assets>
+		<a-box src="#logo" scale="0.12 0.12 0.12" position="0 1 -0.75" rotation="0 45 0"
+			animation="property: object3D.position.y; to: 0.75; dir: alternate; dur: 2000; loop: true"
+			animation__mouseenter="property: scale; to: 0.13 0.13 0.13; dur: 300; startEvents: mouseenter"
+			animation__mouseleave="property: scale; to: 0.12 0.12 0.12; dur: 300; startEvents: mouseleave">
+			</a-box>
+		<a-box src="#logo" scale="0.12 0.12 0.12" position="-0.25 1.25 -1.0" rotation="0 45 0" 
+			animation="property: object3D.position.y; to: 1.0; dir: alternate; dur: 1800; loop: true"
+			animation__mouseenter="property: scale; to: 0.13 0.13 0.13; dur: 300; startEvents: mouseenter"
+			animation__mouseleave="property: scale; to: 0.12 0.12 0.12; dur: 300; startEvents: mouseleave">
+			</a-box>
+		<a-box src="#logo" scale="0.12 0.12 0.12" position="0.25 1 -0.5" rotation="0 45 0" 
+			animation="property: object3D.position.y; to: 0.75; dir: alternate; dur: 1900; loop: true"
+			animation__mouseenter="property: scale; to: 0.13 0.13 0.13; dur: 300; startEvents: mouseenter"
+			animation__mouseleave="property: scale; to: 0.12 0.12 0.12; dur: 300; startEvents: mouseleave">
+			</a-box>
+		<a-entity text="value: Hello!; color: #D7DBDD" position="0.66 1.0 -0.6" scale="1.5 1.5 1.5"></a-entity>
+		<a-camera>
+			<a-cursor></a-cursor>
+		</a-camera>
+    </a-scene>
+  </body>
+</html>
