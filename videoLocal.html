@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="Hello video • A-Frame">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  </head>
+  <body>
+<a-scene>
+  <a-assets timeout="19000">
+    <video id="vid" autoplay loop="true" src="video/Viewbook_Test.mp4"></video>
+  </a-assets>
+  <a-video src="#vid" width="16" height="9" position="0 5 -20" shadow></a-video>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="red" radius-inner="9" radius-outer="9.2" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16000; loop: true"></a-ring>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="black" radius-inner="8.5" radius-outer="8.7" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16100; loop: true"></a-ring>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="red" radius-inner="8" radius-outer="8.2" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16200; loop: true"></a-ring>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="black" radius-inner="7.5" radius-outer="7.7" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16300; loop: true"></a-ring>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="red" radius-inner="7" radius-outer="7.2" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16400; loop: true"></a-ring>
+  <a-ring position="0 -1 -20" rotation="-90 0 0" color="black" radius-inner="6.5" radius-outer="6.7" segments-theta="6"
+          animation="property: object3D.rotation.y; from: 0; to: 360; dur: 16500; loop: true"></a-ring>
+  
+  
+</a-scene>
+  </body>
+</html>
