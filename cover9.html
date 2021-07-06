@@ -1,0 +1,62 @@
+<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+<style>
+  .arjs-loader {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .arjs-loader div {
+    text-align: center;
+    font-size: 1.25em;
+    color: white;
+  }
+</style>
+
+<body style="margin : 0px; overflow: hidden;">
+  <!-- minimal loader shown until image descriptors are loaded -->
+  <div class="arjs-loader">
+    <div>Loading, please wait...</div>
+  </div>
+  <a-scene
+    vr-mode-ui="enabled: false;"
+    renderer="logarithmicDepthBuffer: true;"
+    embedded
+    arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;"
+  >
+	<a-assets>
+		<img id="logo" src="images/logoOnWhite.jpg">
+	</a-assets>
+    <!-- we use cors proxy to avoid cross-origin problems -->
+    <a-nft
+      type="nft"
+      url="NFT/Vanessa_Marker"
+      smooth="false"
+      smoothCount="2"
+      smoothTolerance=".01"
+      smoothThreshold="5"
+    >
+	<!-- +Y is towards camera from marker (UP), +Z is down screen from marker (forward), +x right screen from marker (right)-->
+	<a-box position="0 0 0" rotation="0 0 0" scale="40 40 40" color="white"></a-box>
+	<a-box position="0 160 0" rotation="0 0 0" scale="40 40 40" color="green"></a-box>
+	<a-box position="0 240 0" rotation="0 0 0" scale="40 40 40" color="blue"></a-box>
+	<a-box position="0 80 0" rotation="0 0 0" scale="40 40 40" color="red"></a-box>
+	<a-box position="0 -80 0" rotation="0 0 0" scale="40 40 40" color="green"></a-box>
+	<a-box position="0 -160 0" rotation="0 0 0" scale="40 40 40" color="blue"></a-box>
+	<a-box position="0 -240 0" rotation="0 0 0" scale="40 40 40" color="red"></a-box>
+	<a-box position="0 -320 0" rotation="0 0 0" scale="40 40 40" color="green"></a-box>
+	<a-box position="0 -360 0" rotation="0 0 0" scale="40 40 40" color="blue"></a-box>
+
+    </a-nft>
+    <a-entity camera></a-entity>
+  </a-scene>
+</body>
