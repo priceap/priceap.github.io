@@ -5,8 +5,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | particleFade</title>
   </head>
-  <body style="text-align: center">
+  <body style="text-align: center; background: #000000">
     <canvas id="unity-canvas" style="width: 100%; height: 600px; background: #333333"></canvas>
+	<script>
+      var canvas = document.getElementById('unity-canvas');
+	console.log("here " + canvas.width); // 300
+    </script>
     <script src="Build/web2.loader.js"></script>
     <script>
       createUnityInstance(document.querySelector("#unity-canvas"), {
