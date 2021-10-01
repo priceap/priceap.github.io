@@ -7,12 +7,12 @@
   </head>
   <body style="text-align: center">
     <canvas id="unity-canvas" style="width: 960px; height: 600px; background: #231F20"></canvas>
-    <script src="Build/webglbuild.loader.js"></script>
+    <script src="Build/web2.loader.js"></script>
     <script>
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/webglbuild.data.gz",
-        frameworkUrl: "Build/webglbuild.framework.js.gz",
-        codeUrl: "Build/webglbuild.wasm.gz",
+        dataUrl: "Build/web2.data",
+        frameworkUrl: "Build/web2.framework.js",
+        codeUrl: "Build/web2.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "particleFade",
