@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1 , user-scalable=no">
+<title>Listening Glass</title>
+<link  rel="stylesheet" type="text/css"  href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css"/>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+<script>
+ 
+var audio = $(".audioDemo");
+function loadAudio(){
+
+	audio.trigger('load');
+}
+
+var audios = [
+"W001/43.61253437,3.87811368,20130929160116.mp3", 
+"W001/43.615857,3.883668,20131212164555.mp3",
+"W001/43.604211,3.879693,20140208153713.mp3"
+];
+var srcCount = 0;		
+
+function startAudio(){
+	console.log("start");
+   $(".audioDemo").trigger('play');
+}
+setTimeout(function(){  
+$(".audioDemo").bind('ended', function(){
+    // done playing
+    console.log("ended");
+	var source = audios[srcCount];
+	srcCount++;
+	if (srcCount >= audios.length) srcCount = 0;
+	 $(".audioDemo").prop("src",source);
+	 
+	  $("#audioTitle").html("<b>"+source+"</b>");
+	$(".audioDemo").trigger('load');
+	$(".audioDemo").trigger('play');
+});
+}, 2000);
+</script>
+</head>
+<body>
+
+  <div data-role="page">
+  
+	<div data-role="header" data-theme='c' >
+		<h1>Listening Glass : Window 001</h1>
+	</div><!-- /header -->
+	
+    <div data-role="content" style="text-align:center;" data-theme='c' >
+
+	<audio class="audioDemo"  controls preload="auto"> >
+		<source src="W001/43.604211,3.879693,20140208153713.mp3" type="audio/mp3">
+		Your browser does not support the audio element.
+	</audio>
+	<div id="audioTitle">W001/43.604211,3.879693,20140208153713.mp3</div>
+
+		
+    </div>
+	
+	<div data-role="footer" data-theme='c'><h1>Teri Rueb  ||  Alan Price</h1></div>
+
+	
+  </div>
+</body></html>

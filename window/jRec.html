@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1 , user-scalable=no">
+<title>Listening Glass</title>
+<link  rel="stylesheet" type="text/css"  href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css"/>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+
+<script >
+var lat;
+var lon;
+
+window.onload = function(){
+	function determine(str){
+		if (str.indexOf("=")<0) {
+			$("#contentArea").html('');
+			return ("<b>No location data entered!<br>Please return to the map!</b>");
+		}
+		else {
+			val1 = str.substring(str.indexOf("=")+1, str.lastIndexOf("&"));
+			val2 = str.substring(str.lastIndexOf("=")+1,str.length);
+			lat = val1;
+			lon = val2;
+			if (val1.indexOf("W")>-1) {
+				val1 = "Window:";
+				if (val2.indexOf("0")>-1) val2 = "Sever Hall, Room 212";
+				else if (val2.indexOf("1")>-1) val2 = "Sever Hall, Room 211";
+				else if (val2.indexOf("2")>-1) val2 = "Music Building, Room 4";
+				else if (val2.indexOf("3")>-1) val2 = "Carpenter Center, Gallery Lobby";
+			}
+			return("<b>"+val1+" "+val2+"</b>");
+		}
+	}
+	$("#values").html(determine(window.location+""));
+}
+$(document).ready(function() {
+	var files;
+	$(document).on('change','input[type=file]' ,prepareUpload);
+	function prepareUpload(event)
+	{
+		files = event.target.files;
+		console.log(event.target.files  );	
+	}	
+
+	$(document).on('submit', 'form', function(e) {
+		e.stopPropagation(); 
+		e.preventDefault();
+		var data = new FormData();	
+		$.each(files, function(key, value) { data.append(key, value);});	
+		data.append("lat",lat);
+		data.append("lon",lon);
+		$("#contentArea").html('Uploading File...<br><img src="img/loader_light_blue.gif" width="128" height="15" border="0"  /><br><br><br><br><br><br><br>');
+        $.ajax({
+            url: 'submit.php?files',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, 
+            contentType: false, 
+            success: function(data, textStatus, jqXHR)
+            {
+            	if(typeof data.error === 'undefined')
+            	{
+            		submitForm(event, data);
+            	}
+            	else
+            	{
+            		$("#contentArea").html('Sorry, there was an error in uploading the file.<br><br><br><br>');
+            	}
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+            	$("#contentArea").html('Sorry, there was an error in uploading the file.<br><br><br><br>');
+            }
+        });
+		return false; 
+    });
+
+    function submitForm(event, data)
+	{
+		event.stopPropagation(); 
+		event.preventDefault();	
+		$form = $(event.target);
+		var formData = $form.serialize();
+		$.each(data.files, function(key, value)
+		{
+			formData = formData + '&filenames[]=' + value;
+		});
+		$.ajax({
+			url: 'submit.php',
+            type: 'POST',
+            data: formData,
+            cache: false,
+            dataType: 'json',
+            success: function(data, textStatus, jqXHR)
+            {
+            	if(typeof data.error === 'undefined')
+            	{				
+					$("#contentArea").html('File uploaded successfully. <br>Your audio is processing and will appear on the map in a minute or two.<br><br><br><br>');
+            	}
+            	else
+            	{
+            		$("#contentArea").html('Sorry, there was an error in uploading the file.<br><br><br><br>');
+            	}
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+            	$("#contentArea").html('Sorry, there was an error in uploading the file.<br><br><br><br>');
+            },
+            complete: function()
+            {
+				
+            }
+		});
+		return false; 
+	}
+});
+	
+function goBack() {
+    window.history.back()
+}	
+	
+</script>
+
+</head>
+<body>
+
+  <div data-role="page">
+  
+	<div data-role="header" data-theme='c' data-position="fixed">
+		<a href="index.html" data-icon="home">Home</a>
+		<h1>Listening Glass</h1>
+		<a href="map.html" rel="external" data-icon="grid">Map</a>
+	</div><!-- /header -->
+	
+    <div data-role="content" style="text-align:center;" data-theme='c' >
+	<p><b>Record Audio<br><div id="values"></div></b></p>
+	<div id="contentArea" >
+<p>Press the <b>Choose File</b> button to launch the <b>default recording app</b> on your device.</p> <p>After you complete your recording, select to use the recording and the app should automatically return here and your file displayed below.</p>
+		<div id="result" ><form name="uploadform" data-ajax="false" id="registerSubmit" action="#" method="post" enctype="multipart/form-data">
+		<input type="file" name="file_upload" id="file_upload"  accept="audio/*" capture>
+		<input type="hidden" id="lat" name="lat" value="W"/>
+		<input type="hidden" id="lon" name="lon" value="1"/>
+<p>Then press the <b>Upload</b> button to send the file to the server.</p>
+		<input type="submit" name="submit" value="Upload">
+		</form></div><br><br>
+	
+	<p><b>Additional Help:</b></p>
+	<p>On <b>iPhones</b>, the recording app defaults to the camera for taking photos or video. When the app opens, be sure you are switched to video recording mode. As you record, speak into the microphone of your device. It does not matter what the video image is, as the audio will be used from the movie file when uploaded on the server. Other users will only hear your audio and not see the video. When you stop the recording, select the "use video" option (not the save option) and it will return to this screen with the file ready for upload.
+	</p>
+	<p>On <b>Android</b>, the default recording app is the voice recorder. When you finish the recording, select the "done" option and it will return to this screen with the file ready for upload.
+	</p>
+	</div>	
+	<button onclick="goBack()">Go Back</button>
+<!-- 	<a href="map.html" rel="external" data-role="button">RETURN TO THE MAP</a>	 -->
+		
+    </div>
+	
+	<div data-role="footer" data-theme='c' data-position="fixed"><h1><a href="http://www.terirueb.net" rel="external" >Teri Rueb</a>&nbsp; &nbsp;  || &nbsp; &nbsp; <a href="http://accad.osu.edu/~aprice" rel="external" >Alan Price</h1></a></div>
+
+  </div>
+</body></html>

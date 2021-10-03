@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Window test</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+
+    <script>
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see a blank space instead of the map, this
+// is probably because you have denied permission for location sharing.
+
+var map;
+var infowindow;
+
+	var windowMarkers = [
+	  ['window 1', 0.0005, -0.0005, 4],
+	  ['window 2', 0.0005, 0.00055, 5],
+	  ['window 3', -0.0005, 0.00055, 3],
+	  ['window 4', -0.00052, -0.0005, 2]
+	];
+	
+	var audioMarkers = [
+	  ['audio 1', 0.0002, -0.0003, 4],
+	  ['audio 2', 0.00015, 0.0003, 5],
+	  ['audio 3', -0.00035, 0.00025, 3],
+	  ['audio 4', -0.00015, -0.0004, 2]
+	];
+
+function initialize() {
+	var styles = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      { "visibility": "simplified" },
+      { "saturation": -100 },
+      { "gamma": 0.14 }
+    ]
+  },{
+    "featureType": "road",
+    "stylers": [
+      { "lightness": 82 }
+    ]
+  },{
+    "elementType": "labels",
+    "stylers": [
+      { "visibility": "off" }
+    ]
+  },{
+    "featureType": "road",
+    "elementType": "labels.text",
+    "stylers": [
+      { "invert_lightness": true },
+      { "visibility": "simplified" }
+    ]
+  }
+]
+  var mapOptions = {
+	styles: styles,
+    zoom: 18,
+	mapTypeControl:false,
+	streetViewControl: false,
+    navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+  };
+  
+ 
+  
+  
+  
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+
+  // Try HTML5 geolocation
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);
+
+	var locationImage = { url:'img/center32.png', anchor: new google.maps.Point(16, 16) }  ;							
+	var marker = new google.maps.Marker({
+		position: pos,
+		map: map,
+		title:"Your location",
+		icon: locationImage
+	});
+	var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">Record audio</h3>'+
+      '<div id="bodyContent">'+
+      '<p>Record your audio at this location</p>'+
+	  '<button onclick="recordAudio()">RECORD</button>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<button onclick="infowindow.close()">CANCEL</button>'+
+	  '<br>'+
+	  '<br>'+
+      '</div>'+
+      '</div>';
+	infowindow = new google.maps.InfoWindow({
+		content: contentString
+	});
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(contentString);
+		infowindow.open(map,this);
+	});
+	
+	setMarkers(map, windowMarkers, position.coords.latitude, position.coords.longitude );
+	setAudioMarkers(map, audioMarkers, position.coords.latitude, position.coords.longitude );
+//      var infowindow = new google.maps.InfoWindow({
+//       map: map,
+//      position: pos,
+//      content: 'Location found using HTML5.'
+//    });
+
+      map.setCenter(pos);
+	  
+	  
+	  
+    }, function() {
+      handleNoGeolocation(true);
+    });
+	navigator.geolocation.watchPosition(trackPosition, showError);
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+}
+
+function trackPosition(position) {
+   // lat = position.coords.latitude;
+   // lon = position.coords.longitude;
+	map.setCenter(position);
+	var marker = new google.maps.Marker({position:position,map:map,title:"You are here!"});
+}
+
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            x.innerHTML = "User denied the request for Geolocation."
+            break;
+        case error.POSITION_UNAVAILABLE:
+            x.innerHTML = "Location information is unavailable."
+            break;
+        case error.TIMEOUT:
+            x.innerHTML = "The request to get user location timed out."
+            break;
+        case error.UNKNOWN_ERROR:
+            x.innerHTML = "An unknown error occurred."
+            break;
+    }
+}
+
+function recordAudio() {
+	var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">Record audio</h3>'+
+      '<div id="bodyContent">'+
+      '<p>Pressing the record button will switch to your video recording app. '+
+	  
+	  'When finished recording, select "use video" and the app will return here and you can upload the file.</p>'+
+	  
+	  
+
+
+	'<form action="upload.php" method="post" enctype="multipart/form-data">'+
+	//'<input type="file" name="audio" accept="audio/*" capture>'+
+	'<input type="file" name="fileToUpload" accept="audio/*" capture>'+
+	//'<input type="file" name="fileToUpload" id="fileToUpload">'+
+	'<input type="submit" value="Upload File" name="submit">'+
+	'</form>'+
+
+	 // '<button onclick="">RECORD</button>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<button onclick="infowindow.close()">CANCEL</button>'+
+      '</div>'+
+      '</div>';
+	  
+	infowindow.setContent(contentString);
+	
+	//<form action="upload.php" method="post" enctype="multipart/form-data">
+   // Select image to upload:
+    //<input type="file" name="fileToUpload" id="fileToUpload">
+    //<input type="submit" value="Upload Image" name="submit">
+	//</form>
+
+}
+
+function setMarkers(map, locations, lat, lon) {
+	var windowImage = { url:'img/winSm.png', anchor: new google.maps.Point(16, 16) }  ;	
+	
+	 var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">Listening Window</h3>'+
+      '<div id="bodyContent">'+
+      '<p>This marks the location of a listening window</p>'+
+
+      '</div>'+
+      '</div>';
+	  
+
+	
+  for (var i = 0; i < locations.length; i++) {
+    var windows = locations[i];
+    var myLatLng = new google.maps.LatLng( lat + windows[1], lon + windows[2]);
+    var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        icon: windowImage,
+        title: windows[0],
+        zIndex: windows[3]
+    });
+	
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(contentString);
+		infowindow.open(map,this);
+	});
+  }
+  
+  
+  
+}
+
+function setAudioMarkers(map, locations, lat, lon) {
+	var audioImage = { url:'img/volume32.png', anchor: new google.maps.Point(16, 16) }  ;	
+	
+	 var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">Audio trace</h3>'+
+      '<div id="bodyContent">'+
+      '<p>Play audio recorded at this location</p>'+
+	  
+	  '<audio controls autoplay><source src="jardin.mp3" type="audio/wav">Your browser does '+
+		'not support the audio element.'+
+		'</source></audio>'+
+      '</div>'+
+      '</div>';
+	  
+	
+	
+  for (var i = 0; i < locations.length; i++) {
+    var windows = locations[i];
+    var myLatLng = new google.maps.LatLng( lat + windows[1], lon + windows[2]);
+    var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        icon: audioImage,
+        title: windows[0],
+        zIndex: windows[3]
+    });
+	
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(contentString);
+		infowindow.open(map,this);
+	});
+  }
+  
+  
+  
+}
+
+	
+
+
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+
+	
+  var options = {
+    map: map,
+	
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+  
+
+	
+  var infowindow = new google.maps.InfoWindow(options);
+  
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+  </body>
+</html>

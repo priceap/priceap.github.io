@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Listening Glass</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+	<script>
+
+	var windowMarkers = [
+		['Sever Hall, Room 212', 42.3745079,-71.1155826, 1],
+		['Sever Hall, Room 211', 42.3744648,-71.1153198, 2],
+		['Music Building, Room 4', 42.3767459,-71.1174888, 3], 
+		['Carpenter Center, Gallery Lobby', 42.3735791,-71.1143998, 4]
+	];
+	
+	var audioSources;
+	var audiomarkers = [];
+	var map;
+	var infowindow;
+	var locationMarker;
+	var tracking = true;
+
+	window.onload = function(){
+		//setTimeout( function(){ launchFullscreen(document.documentElement); }, 5000);
+		$.ajax({
+			url: "dirList.php",
+			type: "GET",
+			success: function(output){
+				audioSources = JSON.parse(output);
+			}
+		});
+
+		setInterval(function(){
+			$.ajax({
+				url: "dirList.php",
+				type: "GET",
+				success: function(output){
+					audioSources = JSON.parse(output);
+					if (isInfoWindowOpen(infowindow)){
+						//console.log("infowindow is open");
+					}
+					else {
+						for (var i = 0; i < audiomarkers.length; i++) {
+							audiomarkers[i].setMap(null);
+						}
+						audiomarkers = [];
+						setAudioMarkers(map, audioSources, 42.372792,-71.117473 );
+					}
+				}
+			});
+		}, 30000);
+		
+	}
+	
+	// Find the right method, call on correct element
+	function launchFullscreen(element) {
+	  if(element.requestFullscreen) {
+		element.requestFullscreen();
+	  } else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	  } else if(element.webkitRequestFullscreen) {
+		element.webkitRequestFullscreen();
+	  } else if(element.msRequestFullscreen) {
+		element.msRequestFullscreen();
+	  }
+	}
+
+	function CenterControl(controlDiv, map) {
+	  controlDiv.style.padding = '5px';
+	  var controlUI = document.createElement('div');
+	  controlUI.style.backgroundColor = 'white';
+	  controlUI.style.borderStyle = 'solid';
+	  controlUI.style.borderWidth = '1px';
+	  controlUI.style.cursor = 'pointer';
+	  controlUI.style.textAlign = 'center';
+	  controlUI.title = 'Click to keep the map centered';
+	  controlDiv.appendChild(controlUI);
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '20px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<b>Center</b>';
+	  controlUI.appendChild(controlText);
+	  google.maps.event.addDomListener(controlUI, 'click', function() {
+		tracking = true; 
+		//launchFullscreen(document.documentElement);
+	  });
+	}
+	function RecordControl(controlDiv, map) {
+	  controlDiv.style.padding = '5px';
+	  var controlUI = document.createElement('div');
+	  controlUI.style.backgroundColor = 'white';
+	  controlUI.style.borderStyle = 'solid';
+	  controlUI.style.borderWidth = '1px';
+	  controlUI.style.cursor = 'pointer';
+	  controlUI.style.textAlign = 'center';
+	  controlUI.title = 'Click to record audio on the map';
+	  controlDiv.appendChild(controlUI);
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '20px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<b>Record audio</b>';
+	  controlUI.appendChild(controlText);
+	  google.maps.event.addDomListener(controlUI, 'click', function() {		
+		google.maps.event.trigger(locationMarker, 'click');
+	  });
+	}
+	function HelpControl(controlDiv, map) {
+	  controlDiv.style.padding = '5px';
+	  var controlUI = document.createElement('div');
+	  controlUI.style.backgroundColor = 'white';
+	  controlUI.style.borderStyle = 'solid';
+	  controlUI.style.borderWidth = '1px';
+	  controlUI.style.cursor = 'pointer';
+	  controlUI.style.textAlign = 'center';
+	  controlUI.title = 'help';
+	  controlDiv.appendChild(controlUI);
+	  var controlText = document.createElement('div');
+	  controlText.style.fontFamily = 'Arial,sans-serif';
+	  controlText.style.fontSize = '20px';
+	  controlText.style.paddingLeft = '4px';
+	  controlText.style.paddingRight = '4px';
+	  controlText.innerHTML = '<b>Help</b>';
+	  controlUI.appendChild(controlText);
+	  google.maps.event.addDomListener(controlUI, 'click', function() {
+		open('help.html','_self');
+	  });
+	}
+function initialize() {
+	var styles = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      { "visibility": "simplified" },
+      { "saturation": -100 },
+      { "gamma": 0.28 }
+    ]
+  },{
+    "featureType": "road",
+    "stylers": [
+      { "lightness": 82 }
+    ]
+  },{
+    "elementType": "labels",
+    "stylers": [
+      { "visibility": "off" }
+    ]
+  },{
+    "featureType": "road",
+    "elementType": "labels.text",
+    "stylers": [
+      { "invert_lightness": true },
+      { "visibility": "simplified" }
+    ]
+  },{
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      { "lightness": -100 }
+    ]
+  }
+]
+  var mapOptions = {
+	styles: styles,
+    zoom: 18,
+	mapTypeControl:false,
+	streetViewControl: false,
+	disableDefaultUI: true
+    //navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+  };
+  
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+	  
+  // Create the DIV to hold the control 
+  var centerControlDiv = document.createElement('div');
+  var centerControl = new CenterControl(centerControlDiv, map);
+  centerControlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(centerControlDiv);
+
+  var recordControlDiv = document.createElement('div');
+  var recordControl = new RecordControl(recordControlDiv, map);
+  recordControlDiv.index = 2;
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(recordControlDiv);
+
+  var helpControlDiv = document.createElement('div');
+  var helpControl = new HelpControl(helpControlDiv, map);
+  helpControlDiv.index = 3;
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(helpControlDiv);
+  
+  // Try HTML5 geolocation
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);
+
+	var locationImage = { url:'img/center32.png', anchor: new google.maps.Point(16, 16) }  ;							
+	locationMarker = new google.maps.Marker({
+		position: pos,
+		map: map,
+		title:"Your location",
+		icon: locationImage
+	});
+	  var myWidth = document.documentElement.clientWidth-60;
+	  var myHeight = document.documentElement.clientHeight;
+	  var urly = "jRec.html?L0=39.89&L1=79.32";
+	var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">Record audio</h3>'+
+      '<div id="bodyContent">'+
+      '<p>Record your audio at this location</p>'+
+	  '<button onclick="recordAudio('+position.coords.latitude+','+position.coords.longitude+')">RECORD</button>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<button onclick="infowindow.close()">CANCEL</button>'+
+	  '<br>'+
+	  '<br>'+
+      '</div>'+
+      '</div>';
+	
+	infowindow = new google.maps.InfoWindow({
+		content: contentString,
+		maxWidth: myWidth
+	});
+
+	google.maps.event.addListener(locationMarker, 'click', function() {
+		infowindow.setContent(contentString);
+		infowindow.open(map,this);
+	});
+	
+	google.maps.event.addListener(map, 'dragstart', function() {
+		tracking = false;
+	});
+	
+	setMarkers(map, windowMarkers, position.coords.latitude, position.coords.longitude );
+	setAudioMarkers(map, audioSources, position.coords.latitude, position.coords.longitude );
+
+    map.setCenter(pos);
+
+    }, function() {
+      handleNoGeolocation(true);
+    });
+	navigator.geolocation.watchPosition(trackPosition, showError);
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+}
+
+function isInfoWindowOpen(infoWindow){
+    var map = infoWindow.getMap();
+    return (map !== null && typeof map !== "undefined");
+}
+
+function trackPosition(position) {
+   lat = position.coords.latitude;
+   lon = position.coords.longitude;
+   latlon = new google.maps.LatLng(lat, lon)
+	if (tracking) map.setCenter(latlon);
+	locationMarker.setPosition(latlon);
+}
+
+
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            x.innerHTML = "User denied the request for Geolocation."
+            break;
+        case error.POSITION_UNAVAILABLE:
+            x.innerHTML = "Location information is unavailable."
+            break;
+        case error.TIMEOUT:
+            x.innerHTML = "The request to get user location timed out."
+            break;
+        case error.UNKNOWN_ERROR:
+            x.innerHTML = "An unknown error occurred."
+            break;
+    }
+}
+
+function recordAudio(lat, lon) {
+	window.location.href= "jRec.html?L0="+lat+"&L1="+lon;
+}
+
+function setMarkers(map, locations, lat, lon) {
+	var windowImage = { url:'img/winSm.png', anchor: new google.maps.Point(16, 16) }  ;	
+
+  for (var i = 0; i < locations.length; i++) {
+    var windows = locations[i];
+    var myLatLng = new google.maps.LatLng(windows[1], windows[2]);
+	var urly = "W"+i+".html";
+	var contentString = '<div id="content">'+
+	'<div id="siteNotice">'+
+	'</div>'+
+	'<h3 id="firstHeading" class="firstHeading">Listening Glass: '+windows[0]+'</h3>'+
+	'<div id="bodyContent">'+
+	'<p>This marks the location of a listening window. You may find other participants there to meet.</p>'+
+	'<button onclick="window.location.href=\''+urly+'\'" >Listen to contributed audio</button>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;'+
+	'<button onclick="infowindow.close()">Cancel</button>'+
+	'<br><br></div>'+
+	'</div>';
+	
+    var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        icon: windowImage,
+        title: windows[0],
+		info: contentString,
+        zIndex: windows[3]
+    });
+
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(this.info);
+		infowindow.open(map,this);
+	});
+  }
+
+}
+
+function setAudioMarkers(map, locations, lat, lon) {
+	var audioImage = { url:'img/volume32.png', anchor: new google.maps.Point(16, 16) }  ;	
+
+	for (var i = 0; i < locations.length; i++) {
+		var trace = locations[i];
+		var split = trace.split("_");
+		//console.log(split[0]);
+		//console.log(split[0].indexOf("W"));
+		if (split[0].indexOf("W") <0 ) {
+			var timestamp = split[3].split(".")[0];
+			var yearstamp = split[2].split("-")[1]+"/"+split[2].split("-")[2]+"/"+split[2].split("-")[0];
+			var myLatLng = new google.maps.LatLng( split[0], split[1]);
+			
+			var contentString = '<div id="content">'+
+			'<div id="siteNotice"></div>'+
+			'<h3 id="firstHeading" class="firstHeading">Audio Trace <br> ' +timestamp+', '+yearstamp+ '  </h3>'+
+			'<div id="bodyContent">'+
+			'<p>Play audio recorded at this location.</p>'+
+			'<audio controls autoplay><source src="uploads/'+locations[i]+'" type="audio/mp3">Your browser does '+
+			'not support this audio element.'+
+			'</source></audio>'+
+			'</div>'+
+			'</div>';
+			
+			var marker = new google.maps.Marker({
+				position: myLatLng,
+				map: map,
+				icon: audioImage,
+				title: timestamp+' '+yearstamp+'('+i+')',
+				info: contentString,
+				zIndex: i
+			});
+			audiomarkers.push(marker);
+
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.setContent(this.info);
+				infowindow.open(map,this);
+			});
+		}
+	}
+}
+
+	
+
+
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+
+	
+  var options = {
+    map: map,
+	
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+  
+
+	
+  var infowindow = new google.maps.InfoWindow(options);
+  
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+  </body>
+</html>

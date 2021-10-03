@@ -1,0 +1,7 @@
+ONE,TWO,THREE,FOUR,FIVE
+flowers,weeds,grass,53.3445,trees
+spice,flour,syrup,32.345,noodles
+kittens,dogs,fish,-124.8569,sharks
+yarn,thread,rope,45.432,bungie
+puddles,lakes,oceans,37.978,water
+ice cream,cake,cherries,7897485.32,diet

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>geolocate</title>
+
+</head><body>
+<font size="5">
+
+<form action="server.cgi" method="post" enctype="multipart/form-data">
+  <input type="file" name="audio" accept="audio/*" capture>
+  <input type="submit" value="Upload">
+</form>
+
+<p>Click the button to start
+updating your location coordinates.</p>
+<p--><button type="button" onclick="getLocation()">START</button>
+</p--></font>
+<p id="location"></p>
+<script>
+var x = document.getElementById("location");
+function getLocation() {
+if (navigator.geolocation) {
+navigator.geolocation.watchPosition(showPosition);
+} else { x.innerHTML = "Geolocation is not supported by this browser.";}
+}
+function showPosition(position) {
+x.innerHTML="Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude; }
+</script>
+<audio controls autoplay><source src="wavtest.wav" type="audio/wav">Your browser does
+not support the audio
+element.
+</source></audio>
+</body></html>
